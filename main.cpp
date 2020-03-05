@@ -1,3 +1,13 @@
+/*
+ Following function utilizes the heap sort in order to sort a group of numbers either inputted manually or from a file.
+ By:Deyvik Bhan
+ Date: 2/26/20
+ Thank you to Omar, Stefan and Wikipedia
+ 
+ 
+ */
+
+
 #include <iostream>
 #include <cstring>
 #include <iomanip>
@@ -5,7 +15,7 @@
 
 using namespace std;
 
-
+// Following function is used to visualize the heap
 void visualize(int arr[], int n, int levels) {
     for(int i = 0; i < levels; i++) {
         cout << " ";
@@ -23,14 +33,17 @@ void visualize(int arr[], int n, int levels) {
     
 }
 
-
+// Following function creates the max heap
 void heapify(int arr[], int place, int size) {
     
     int temp = arr[place-1];
+    // Root
     int a = arr[((place-1)/2)-1]; // parent
     int b = arr[(place/2)-1]; // parent
     if(place > 1 && place <= size) {
+        // If is past first index
         if(place %2 == 0) {
+            // If place is left child
             if(temp > b) {
                 arr[place-1] = b;
                 arr[(place/2)-1] = temp;
@@ -41,6 +54,7 @@ void heapify(int arr[], int place, int size) {
             
             
         } else if (place %2 == 1) {
+            // If place is right child
             if(temp > a) {
                 arr[place-1] = a;
                 arr[((place-1)/2)-1] = temp;
@@ -63,31 +77,116 @@ void heapify(int arr[], int place, int size) {
     
 }
 
-
-void remove(int arr[], int size) {
-    int count = 0;
-    int sizeCount = size;
-    int* sorted = new int[size];
-    
-    while(count < size) {
-        sorted[count] = arr[0];
-        for(int i = 1; arr[i] <=sizeCount; i++) {
-            arr[i-1] = arr[i];
+// Function used to fix the heap once the swap of the first and last thing in array occurs
+void siftDown(int arr[], int start, int end) {
+    int root = start;
+    while((root*2) <= end) {
+        // While there is a left node
+        
+        if((root*2)+1 <= end) {
+            // If there is a right node
+          //  cout << root << " " << (root*2)+1 <<endl;
+            
+            if(arr[root-1] < arr[(root*2)-1] || arr[root-1] < arr[(root*2)] ) {
+                // If root is less then left or right node
+            if(arr[(root*2)-1] < arr[(root*2)]) {
+                // Whichever child is greater switch it with root
+                int a = arr[(root*2)];
+                int b = arr[root-1];
+                arr[root-1] = a;
+                arr[(root*2)] = b;
+                siftDown(arr,(root*2)+1,end);
+                // Call sift on the switched child
+                
+            } else {
+                // Whicever child is greater switch it with root
+                int a = arr[(root*2)-1];
+                int b = arr[root-1];
+                arr[root-1] = a;
+                arr[(root*2)-1] = b;
+                siftDown(arr,root*2,end);
+                // Call sift on switched child
+                
+            }
+            } else {
+                
+                break;
+            }
+        
+        } else {
+            // If there is only a left child
+            if(arr[root-1] < arr[(root*2)-1]) {
+                int a = arr[root-1];
+                int b = arr[(root*2)-1];
+                arr[root-1] = b;
+                arr[(root*2)-1] = a;
+                siftDown(arr,root*2,end);
+                // Switch the child and root and call sift on new child
+                
+                
+            } else {
+                break;
+            }
+            
+            
         }
-        heapify(arr,1,sizeCount);
-        count ++;
-        sizeCount--;
         
-    }
     
-    for(int i = 0; sorted[i] != 0; i++) {
-       
-        cout << sorted[i] << " ";
+    }
+ 
+    
+ 
+}
+
+// Following function is used to sort the heap
+void remove(int arr[], int size, int place) {
+    int count = 0;
+    int* final = new int[100];
+    // New array
+     size = 0;
+    int i = 0;
+    while(arr[i] != 0) {
+         size++;
+        i++;
         
     }
+    // Gets size of array
+    //int final = size;
+    int end = size;
+ 
+    // Psuedo code gotten from wikipeida
+    while(end-1 > 0) {
+        // While the array still has size
+        int a = arr[end-1];
+        int b = arr[0];
+        arr[0] = a;
+        final[count] = b;
+        count ++;
+        // Switches first and last and puts top of heap in new array
+        
+        end = end-1;
+        // Reduces the size of teh array
+        siftDown(arr,1,end);
+        // Calls sift on new array
+        
+        
+    }
+    final[count] = arr[0];
+    // Puts last element in the original array into the final array
+    
+    
+    // Prints out sorted numbers
+    for(int i = 0; final[i] != '\0'; i++) {
+    
+        cout << final[i] << " " ;
+    }
+  
     cout << endl;
+ 
+    
     
 }
+
 
 
 // Following parse function from Stefan Ene https://github.com/Stefanene/Heap/blob/master/main.cpp
@@ -128,7 +227,7 @@ void parse(char* in, int* modif, int &count) {
 int main() {
     
     
-    
+    // Just the input stuff
    
      int count = 0;
     int modif[100];
@@ -139,12 +238,12 @@ int main() {
     }
      
     cout << "If you would like to input manually type '1' if you would like to do it from a file type '2':" << endl;
-    
-    char input[10];
-    cin.get(input,10);
+    char inp[10];
+    char input[100000];
+    cin.get(inp,10);
     cin.clear();
-    cin.ignore(10,'\n');
-    if(strcmp(input,"1")== 0) {
+    cin.ignore(1000000,'\n');
+    if(strcmp(inp,"1")== 0) {
         cout << "Enter a set of numbers sperated by spaces:" << endl;
         char in[100000];
         cin.get(in, 100000);
@@ -156,9 +255,9 @@ int main() {
         heapify(modif,1, size);
         
         visualize(modif,1,0);
-        remove(modif, size);
+        remove(modif, size,0);
         
-    } else if(strcmp(input,"2")== 0) {
+    } else if(strcmp(inp,"2")== 0) {
         
         // Following chunk from Omar Nassar
         cout << endl << "What is the name of the file?" << endl << ">> ";
@@ -173,12 +272,14 @@ int main() {
             file.read(input, size);
             file.close();
             parse(input,modif,count);
+            
+           
             int size = sizeof(modif)/sizeof(modif[0]);
             
             heapify(modif,1, size);
             
-            visualize(modif,1,0);
-            remove(modif, size);
+           visualize(modif,1,0);
+            remove(modif, size,0);
         }
       
         
